@@ -14,11 +14,19 @@ import {
 } from './lib/fallbackData.js'
 import { useGA4Weekly, useKlaviyo, useShopifyDaily } from './lib/useWindsor.js'
 
-// ─── Colour tokens ─────────────────────────────────────────────────────────
+// ─── Apex brand colour tokens ──────────────────────────────────────────────
 const C = {
-  primary: '#E8FF4D', bg: '#0A0A0A', card: '#141414', border: '#222',
-  text: '#FFFFFF', muted: '#888', positive: '#4DFF91',
-  negative: '#FF4D4D', blue: '#4D9FFF', purple: '#b04dff',
+  primary: '#C8F000',
+  pink: '#F2A7CC',
+  bg: '#0A0A0A',
+  card: '#141414',
+  border: '#1E1E1E',
+  text: '#FFFFFF',
+  muted: '#666',
+  positive: '#C8F000',
+  negative: '#FF4D6A',
+  blue: '#4D9FFF',
+  purple: '#b04dff',
 }
 
 // ─── Formatters ────────────────────────────────────────────────────────────
@@ -120,12 +128,17 @@ export default function Dashboard() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.primary }} />
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Apex Rides</span>
-            <span style={{ color: C.muted, fontSize: 12 }}>Dashboard</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+            <span style={{
+              fontSize: 22, fontWeight: 900, letterSpacing: '0.12em',
+              color: '#FFFFFF', textTransform: 'uppercase', lineHeight: 1,
+            }}>APEX</span>
+            <span style={{
+              fontSize: 10, letterSpacing: '0.2em', color: C.muted,
+              textTransform: 'uppercase',
+            }}>Dashboard</span>
           </div>
-          <div style={{ color: C.muted, fontSize: 10, marginTop: 3 }}>
+          <div style={{ color: C.muted, fontSize: 10, marginTop: 4 }}>
             {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · Shopify · GA4 · Klaviyo
           </div>
         </div>
@@ -137,7 +150,8 @@ export default function Dashboard() {
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             background: 'none', border: 'none', cursor: 'pointer', padding: '6px 13px',
-            fontSize: 12, fontWeight: 500, fontFamily: 'inherit',
+            fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
             color: tab === t ? C.primary : C.muted,
             borderBottom: tab === t ? `2px solid ${C.primary}` : '2px solid transparent',
             marginBottom: -1,
