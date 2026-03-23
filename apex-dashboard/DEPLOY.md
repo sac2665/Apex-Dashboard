@@ -1,0 +1,154 @@
+# Apex Rides Dashboard — Deploy Guide
+
+## What this is
+
+A React app that shows live Shopify, GA4, and Klaviyo data via Windsor.ai.
+It sits behind a simple password gate. The Windsor API key never touches the browser —
+it stays in a Vercel serverless function.
+
+If Windsor returns no data, the dashboard falls back to the last static snapshot
+automatically so it's never blank.
+
+---
+
+## Prerequisites
+
+- GitHub account (free)
+- Vercel account (free tier is enough — vercel.com)
+- Your Windsor.ai API key (see Step 1)
+- Node 18+ installed locally if you want to test before deploying
+
+---
+
+## Step 1 — Get your Windsor API key
+
+1. Go to https://onboard.windsor.ai
+2. Settings > API key
+3. Copy the key. Keep it secret — treat it like a password.
+
+---
+
+## Step 2 — Push to GitHub
+
+1. Create a new private repo at github.com (private is important)
+2. In a terminal, from the `apex-dashboard` folder:
+
+```bash
+git init
+git add .
+git commit -m "Initial dashboard"
+git remote add origin https://github.com/YOUR_USERNAME/apex-dashboard.git
+git push -u origin main
+```
+
+---
+
+## Step 3 — Deploy on Vercel
+
+1. Go to vercel.com and click "Add New Project"
+2. Import your GitHub repo
+3. Vercel will detect it as a Vite project automatically. Leave defaults.
+4. Before clicking Deploy, open "Environment Variables" and add:
+
+| Name | Value |
+|------|-------|
+| `WINDSOR_API_KEY` | your Windsor key from Step 1 |
+| `VITE_DASHBOARD_PASSWORD` | the password you want (e.g. `apex2026`) |
+
+5. Click Deploy. Takes about 60 seconds.
+6. Vercel gives you a URL like `apex-dashboard.vercel.app`
+
+---
+
+## Step 4 — Add a custom subdomain (optional but recommended)
+
+You have the domain managed via GoDaddy.
+
+1. In Vercel, go to your project > Settings > Domains
+2. Add `dashboard.apexrides.com`
+3. Vercel shows you a CNAME record to add
+4. Go to GoDaddy > DNS for apexrides.com
+5. Add the CNAME record Vercel gave you
+6. Takes 5–30 minutes to propagate
+
+Your team can then access the dashboard at https://dashboard.apexrides.com
+
+---
+
+## Step 5 — Share with the team
+
+Send the URL and the password. That's it. No accounts, no logins.
+The session persists until the browser tab closes.
+
+To change the password: update `VITE_DASHBOARD_PASSWORD` in Vercel's
+Environment Variables panel and redeploy (one click).
+
+---
+
+## Changing the password
+
+Vercel dashboard > Your project > Settings > Environment Variables
+> Edit `VITE_DASHBOARD_PASSWORD` > Redeploy
+
+---
+
+## Keeping data fresh
+
+The Windsor API proxy caches responses for 5 minutes on Vercel's CDN.
+So on any given visit the data is at most 5 minutes old.
+
+The static fallback data in `src/lib/fallbackData.js` only matters if
+Windsor is down or returns empty. Update it occasionally by asking Claude
+to regenerate it from the latest Windsor export.
+
+---
+
+## Local development
+
+```bash
+cp .env.example .env.local
+# Fill in your Windsor API key and password in .env.local
+
+npm install
+npm run dev
+# Opens at http://localhost:5173
+```
+
+---
+
+## File structure
+
+```
+apex-dashboard/
+  api/
+    windsor.js          ← Vercel serverless function (keeps API key secret)
+  src/
+    App.jsx             ← Password gate
+    Dashboard.jsx       ← All 5 tabs + charts
+    lib/
+      useWindsor.js     ← Live data hooks
+      fallbackData.js   ← Static snapshot fallback
+  index.html
+  vite.config.js
+  vercel.json
+  package.json
+  .env.example
+```
+
+---
+
+## Troubleshooting
+
+**Dashboard shows "Cached snapshot" badge instead of "Live data"**
+The Windsor API call is failing. Check:
+- `WINDSOR_API_KEY` is set correctly in Vercel environment variables
+- Windsor.ai account has Shopify, GA4, and Klaviyo connected
+- Check Vercel function logs: Project > Functions > windsor
+
+**Password isn't working**
+Make sure `VITE_DASHBOARD_PASSWORD` is set in Vercel and you've redeployed
+after setting it.
+
+**Custom domain not loading**
+DNS propagation can take up to 30 minutes. Check the CNAME is correct
+in GoDaddy. Vercel's domain panel will show a green checkmark when it's live.
